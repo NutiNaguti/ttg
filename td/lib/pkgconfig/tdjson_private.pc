@@ -1,0 +1,9 @@
+prefix=/Users/derzhavin/tdlib
+
+Name: tdjson_private
+Description: Telegram Library - JSON interface (private)
+Version: 1.8.11
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdjson_private
+Requires.private: tdclient tdutils

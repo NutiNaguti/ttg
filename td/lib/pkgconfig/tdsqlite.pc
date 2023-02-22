@@ -1,0 +1,9 @@
+prefix=/Users/derzhavin/tdlib
+
+Name: tdsqlite
+Description: Telegram Library - SQLite
+Version: 1.8.11
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdsqlite
+Libs.private: -L"/opt/homebrew/opt/openssl/lib" -l:libcrypto.dylib -L"/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/lib" -l:libz.tbd
