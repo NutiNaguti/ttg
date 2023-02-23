@@ -15,9 +15,10 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-var DefaultTimeout = 3.0
+var DefaultTimeout = 1.0
 
 var (
+	authorizationState                    = "authorizationState"
 	authorizationStateWaitTdlibParameters = "authorizationStateWaitTdlibParameters"
 	authorizationStateWaitPhoneNumber     = "authorizationStateWaitPhoneNumber"
 	authorizationStateWaitEmailAddress    = "authorizationStateWaitEmailAddress"
@@ -27,9 +28,10 @@ var (
 	authorizationStateWaitPassword        = "authorizationStateWaitPassword"
 	authorizationStateReady               = "authorizationStateReady"
 
-	updateOption = "updateOption"
+	setTdlibParameters           = "setTdlibParameters"
+	setAuthenticationPhoneNumber = "setAuthenticationPhoneNumber"
 
-	setTdlibParameters = "setTdlibParameters"
+	getChats = "getChats"
 )
 
 type TdSender interface {
@@ -37,29 +39,51 @@ type TdSender interface {
 }
 
 type Client struct {
-	Client/* unsafe.Pointer */ C.int
-	Config Config
+	Client  C.int
+	Config  Config
+	Updates chan []UpdateData
 }
 
 type UpdateData map[string]interface{}
 
-func NewClient(c chan *Client) error {
+func NewClient() (Client, error) {
 	config := GetConfig()
 	client := Client{Client: C.td_create_client_id(), Config: *config}
-	client.setTDLibParams()
-	c <- &client
+	err := client.setTDLibParams()
+	if err != nil {
+		log.Error(err)
+	}
+	return client, nil
+}
+
+func (c *Client) AuthorizeViaPhoneNumber(phoneNumber string) error {
+	query := UpdateData{
+		"@type":        setAuthenticationPhoneNumber,
+		"phone_number": phoneNumber,
+	}
+	err := c.send(query)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	return nil
 }
 
-func (c *Client) GetAllChats() {}
+func (c *Client) GetAllChats() {
+	query := UpdateData{
+		"@type": getChats,
+	}
+	c.send(query)
+}
 
-func (c *Client) getUpdates() (UpdateData, error) {
-	updates, err := c.receive()
+func (c *Client) getUpdates(updates chan UpdateData) error {
+	err := c.receive(updates, DefaultTimeout)
 	if err != nil {
 		log.Error(err)
-		return nil, err
+		return err
 	}
-	return updates, nil
+	return nil
 }
 
 func (c *Client) setTDLibParams() error {
@@ -83,15 +107,19 @@ func (c *Client) setTDLibParams() error {
 	return nil
 }
 
-func (c *Client) receive() (UpdateData, error) {
-	update := C.td_receive(C.double(1))
+func (c *Client) receive(updates chan UpdateData, timeout float64) error {
+	update := C.td_receive(C.double(timeout))
 	var result UpdateData
 	log.Info(C.GoString(update))
+	if C.GoString(update) == "" {
+		return nil
+	}
 	err := json.Unmarshal([]byte(C.GoString(update)), &result)
 	if err != nil {
 		log.Error(err)
 	}
-	return result, nil
+	updates <- result
+	return nil
 }
 
 func (c *Client) send(jsonQuery UpdateData) error {
