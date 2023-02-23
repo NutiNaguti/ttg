@@ -1,0 +1,10 @@
+{
+  "api_id": 1234567890,
+  "api_hash": "asdfghjklpoiuyttrewq",
+  "database_directory": "/usr/local/opt/",
+  "use_message_database": true,
+  "use_secret_chats": true,
+  "system_language_code": "en",
+  "device_model": "Desktop",
+  "application_version": "0.0.1"
+}

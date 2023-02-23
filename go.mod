@@ -2,11 +2,10 @@ module github.com/NutiNaguti/ttg
 
 go 1.19
 
-require github.com/Arman92/go-tdlib v1.0.0
+require github.com/charmbracelet/log v0.1.0
 
 require (
 	github.com/charmbracelet/lipgloss v0.6.0 // indirect
-	github.com/charmbracelet/log v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect

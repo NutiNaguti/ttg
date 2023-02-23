@@ -1,6 +1,4 @@
 .DS_Store
-./dbstore
-
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -19,3 +17,8 @@
 
 # Go workspace file
 go.work
+dbstore
+ttg
+td
+conf.json
+out
